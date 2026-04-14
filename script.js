@@ -12,7 +12,7 @@ const navbar      = qs('#navbar');
 const scrollBar   = qs('#scrollProgress');
 const hamburger   = qs('#hamburger');
 const navMenu     = qs('#navMenu');
-const navLinks    = qsa('.nav-link');
+const navLinks    = qsa('.nav-link, .nav-sublink');
 
 /* ── Navbar: glass + shadow on scroll ───────────────────── */
 function handleNavScroll() {
