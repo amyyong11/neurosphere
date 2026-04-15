@@ -37,7 +37,6 @@ body {
   background: var(--gradient-bg);
   background-attachment: fixed;
   color: var(--text-dark);
-  overflow-x: hidden;
   line-height: 1.65;
   max-width: 100%;
 }
@@ -212,13 +211,27 @@ ul { list-style: none; }
 .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
 /* ── Page enter animation ───────────────────────────────────── */
+/* NOTE: transform cannot be used on body — it breaks position:fixed children */
 @keyframes pageFadeIn {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 .page-enter {
-  animation: pageFadeIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: pageFadeIn 0.45s ease both;
 }
+
+/* Slide-up entrance applied to content sections, not body */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-hero,
+.page-content,
+footer {
+  animation: slideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.page-content { animation-delay: 0.08s; }
+footer        { animation-delay: 0.12s; }
 
 /* ── Page Hero (full-viewport sphere section) ───────────────── */
 .page-hero {
@@ -335,14 +348,6 @@ ul { list-style: none; }
   50%       { transform: translate(-50%, -50%) translateY(-14px); }
 }
 
-/* ── Hero-specific ────────────────────────────────────────── */
-.hero-section .sphere-overlay-title {
-  animation: floatSphereHero 5s ease-in-out infinite;
-}
-@keyframes floatSphereHero {
-  0%, 100% { transform: translate(-50%, -50%) translateY(0); }
-  50%       { transform: translate(-50%, -50%) translateY(-14px); }
-}
 
 .hero-tagline {
   text-align: center;
