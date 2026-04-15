@@ -39,23 +39,14 @@ body {
   color: var(--text-dark);
   line-height: 1.65;
   max-width: 100%;
+  overflow-x: clip;
 }
 
 img { display: block; max-width: 100%; }
 a  { text-decoration: none; }
 ul { list-style: none; }
 
-/* ── Scroll Progress Bar ───────────────────────────────────── */
-.scroll-progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 3px;
-  width: 0%;
-  background: linear-gradient(90deg, var(--pink-primary), var(--pink-deep));
-  z-index: 9999;
-  transition: width 0.1s linear;
-}
+
 
 /* ── Navbar ─────────────────────────────────────────────────── */
 .navbar {
