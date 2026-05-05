@@ -545,6 +545,23 @@ footer        { animation-delay: 0.12s; }
   .opp-prose { padding: 1.5rem 1.25rem; }
 }
 
+/* Flipbook embed */
+.flipbook-embed {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  box-shadow: 0 8px 32px var(--shadow-pink);
+  margin-top: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+.flipbook-embed iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
 /* CTA Banner */
 .cta-banner {
   background: linear-gradient(135deg, var(--pink-primary), var(--pink-deeper));
