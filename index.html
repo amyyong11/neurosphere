@@ -143,8 +143,8 @@
     window.addEventListener('resize', resize);
     resize();
 
-    const COUNT = window.innerWidth < 600 ? 32 : 58;
-    const LINK  = 200;
+    const COUNT = window.innerWidth < 600 ? 24 : 46;
+    const LINK  = 195;
 
     const nodes  = [];
     const pulses = [];
@@ -229,7 +229,7 @@
         this.t = Math.min(1, this.t + this.speed);
         if (this.t >= 1 && !this.done) {
           this.done = true;
-          if (this.cascade && this.to.fire()) spawnPulses(this.to, false);
+          if (this.cascade && this.to.fire()) fireTo(this.to, true);
         }
       }
       draw() {
@@ -249,24 +249,21 @@
     }
 
     /* ── Helpers ── */
-    function spawnPulses(src, cascade) {
-      nodes.forEach(n => {
-        if (n === src) return;
+    function fireTo(src, cascade) {
+      const nearby = nodes.filter(n => {
+        if (n === src || n.refractory > 0) return false;
         const dx = n.x - src.x, dy = n.y - src.y;
-        if (dx*dx + dy*dy < LINK*LINK && Math.random() < (cascade ? 0.55 : 0.32))
-          pulses.push(new Pulse(src, n, cascade));
+        return dx*dx + dy*dy < LINK*LINK;
       });
+      if (nearby.length === 0) return;
+      const target = nearby[Math.floor(Math.random() * nearby.length)];
+      pulses.push(new Pulse(src, target, cascade));
     }
 
     function autoFire() {
-      /* pick two nodes from opposite areas so firings spread across the canvas */
-      const left  = nodes.filter(n => n.x < W * 0.5);
-      const right = nodes.filter(n => n.x >= W * 0.5);
-      const src1  = left[Math.floor(Math.random() * left.length)];
-      const src2  = right[Math.floor(Math.random() * right.length)];
-      if (src1 && src1.fire()) spawnPulses(src1, true);
-      if (src2 && src2.fire()) spawnPulses(src2, true);
-      setTimeout(autoFire, 1600 + Math.random() * 1600);
+      const src = nodes[Math.floor(Math.random() * nodes.length)];
+      if (src && src.fire()) fireTo(src, true);
+      setTimeout(autoFire, 2400 + Math.random() * 2000);
     }
 
     /* ── Mouse ── */
@@ -279,7 +276,7 @@
       for (const n of nodes) {
         const dx = n.x - mx, dy = n.y - my;
         if (dx*dx + dy*dy < 85*85 && n.fire()) {
-          spawnPulses(n, true);
+          fireTo(n, true);
           lastMouseFire = now;
           break;
         }
