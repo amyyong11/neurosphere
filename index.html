@@ -8,9 +8,26 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Landing page only: canvas provides the background */
+    body { background: transparent; }
+    #neuralCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: none;
+      z-index: 0;
+    }
+    /* Lift page sections above canvas */
+    .page-hero { position: relative; z-index: 1; }
+    footer     { position: relative; z-index: 1; }
+  </style>
 </head>
 <body class="page-enter">
 
+  <canvas id="neuralCanvas"></canvas>
   <div class="scroll-progress" id="scrollProgress"></div>
 
   <!-- NAVBAR -->
@@ -111,5 +128,293 @@
   </footer>
 
   <script src="script.js"></script>
+  <script>
+  /* ── Neural 3D background (landing page only) ── */
+  (function () {
+    const canvas = document.getElementById('neuralCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    let W, H;
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    const COUNT = window.innerWidth < 600 ? 32 : 58;
+    const LINK  = 200;
+
+    const nodes  = [];
+    const pulses = [];
+    const rings  = [];
+
+    /* ── Node — has a z depth [0=far, 1=near] ── */
+    class Node {
+      constructor() {
+        this.x     = Math.random() * W;
+        this.y     = Math.random() * H;
+        this.z     = Math.random();                         // depth
+        const spd  = 0.07 + this.z * 0.18;
+        this.vx    = (Math.random() - 0.5) * spd;
+        this.vy    = (Math.random() - 0.5) * spd;
+        this.baseR = Math.random() * 2 + 1.2;
+        this.glow  = 0;
+        this.refractory = 0;
+      }
+      /* perspective scale — near nodes are bigger */
+      get r()     { return this.baseR * (0.35 + this.z * 0.9); }
+      get alpha() { return 0.28 + this.z * 0.65; }
+
+      fire() {
+        if (this.refractory > 0) return false;
+        this.glow       = 1;
+        this.refractory = 90;
+        rings.push({ x: this.x, y: this.y, r: 3, alpha: 0.6 * (0.35 + this.z * 0.65), z: this.z });
+        return true;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.x < 0 || this.x > W) this.vx *= -1;
+        if (this.y < 0 || this.y > H) this.vy *= -1;
+        this.glow       = Math.max(0, this.glow - 0.016);
+        this.refractory = Math.max(0, this.refractory - 1);
+      }
+      draw() {
+        const r = this.r;
+        const ga = this.glow * (0.35 + this.z * 0.45);
+
+        /* outer pink halo when firing */
+        if (this.glow > 0.01) {
+          const halo = 20 + this.z * 20;
+          const gh = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, halo);
+          gh.addColorStop(0,   `rgba(255,255,255,${ga * 0.55})`);
+          gh.addColorStop(0.3, `rgba(240,120,185,${ga * 0.4})`);
+          gh.addColorStop(1,   'rgba(210,70,145,0)');
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, halo, 0, Math.PI * 2);
+          ctx.fillStyle = gh;
+          ctx.fill();
+        }
+
+        /* 3D sphere — bright white core fading to deep pink rim */
+        const hx = this.x - r * 0.28;
+        const hy = this.y - r * 0.28;
+        const sg = ctx.createRadialGradient(hx, hy, 0, this.x, this.y, r + this.glow * 2.2);
+        sg.addColorStop(0,    `rgba(255,255,255,${this.alpha + this.glow * 0.25})`);
+        sg.addColorStop(0.22, `rgba(255,230,245,${this.alpha + this.glow * 0.15})`);
+        sg.addColorStop(0.55, `rgba(220,100,165,${this.alpha * 0.9})`);
+        sg.addColorStop(0.82, `rgba(160,30,100,${this.alpha * 0.75})`);
+        sg.addColorStop(1,    `rgba(100,10,60,${this.alpha * 0.4})`);
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, r + this.glow * 2.2, 0, Math.PI * 2);
+        ctx.fillStyle = sg;
+        ctx.fill();
+      }
+    }
+
+    /* ── Pulse — size & brightness scale with depth ── */
+    class Pulse {
+      constructor(from, to, cascade) {
+        this.from    = from;
+        this.to      = to;
+        this.cascade = cascade;
+        this.t       = 0;
+        this.speed   = 0.006 + Math.random() * 0.005;
+        this.done    = false;
+      }
+      update() {
+        this.t = Math.min(1, this.t + this.speed);
+        if (this.t >= 1 && !this.done) {
+          this.done = true;
+          if (this.cascade && this.to.fire()) spawnPulses(this.to, false);
+        }
+      }
+      draw() {
+        const x  = this.from.x + (this.to.x - this.from.x) * this.t;
+        const y  = this.from.y + (this.to.y - this.from.y) * this.t;
+        const z  = this.from.z + (this.to.z - this.from.z) * this.t;
+        const sz = 5 + z * 7;
+        const pg = ctx.createRadialGradient(x, y, 0, x, y, sz);
+        pg.addColorStop(0,    `rgba(255,255,255,${0.9 + z * 0.1})`);
+        pg.addColorStop(0.35, `rgba(255,210,238,${0.45 + z * 0.2})`);
+        pg.addColorStop(1,    'rgba(232,110,175,0)');
+        ctx.beginPath();
+        ctx.arc(x, y, sz, 0, Math.PI * 2);
+        ctx.fillStyle = pg;
+        ctx.fill();
+      }
+    }
+
+    /* ── Helpers ── */
+    function spawnPulses(src, cascade) {
+      nodes.forEach(n => {
+        if (n === src) return;
+        const dx = n.x - src.x, dy = n.y - src.y;
+        if (dx*dx + dy*dy < LINK*LINK && Math.random() < (cascade ? 0.55 : 0.32))
+          pulses.push(new Pulse(src, n, cascade));
+      });
+    }
+
+    function autoFire() {
+      /* pick two nodes from opposite areas so firings spread across the canvas */
+      const left  = nodes.filter(n => n.x < W * 0.5);
+      const right = nodes.filter(n => n.x >= W * 0.5);
+      const src1  = left[Math.floor(Math.random() * left.length)];
+      const src2  = right[Math.floor(Math.random() * right.length)];
+      if (src1 && src1.fire()) spawnPulses(src1, true);
+      if (src2 && src2.fire()) spawnPulses(src2, true);
+      setTimeout(autoFire, 1600 + Math.random() * 1600);
+    }
+
+    /* ── Mouse ── */
+    let mx = -9999, my = -9999, lastMouseFire = 0;
+    window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+    function checkMouseFire() {
+      const now = performance.now();
+      if (now - lastMouseFire < 340) return;
+      for (const n of nodes) {
+        const dx = n.x - mx, dy = n.y - my;
+        if (dx*dx + dy*dy < 85*85 && n.fire()) {
+          spawnPulses(n, true);
+          lastMouseFire = now;
+          break;
+        }
+      }
+    }
+
+    /* ── Background: 4 layered gradients for 3D depth ── */
+    function drawBg(t) {
+      /* L1 — base: warm light at top → deep magenta at bottom */
+      const base = ctx.createLinearGradient(W * 0.45, 0, W * 0.55, H);
+      base.addColorStop(0,    '#fff0fa');
+      base.addColorStop(0.42, '#f9cce8');
+      base.addColorStop(0.78, '#f0a0cc');
+      base.addColorStop(1,    '#e070b0');
+      ctx.fillStyle = base;
+      ctx.fillRect(0, 0, W, H);
+
+      /* L2 — animated spotlight drifting slowly (gives life to bg) */
+      const sx = W * (0.42 + Math.sin(t * 0.00028) * 0.14);
+      const sy = H * (0.14 + Math.cos(t * 0.00019) * 0.09);
+      const spot = ctx.createRadialGradient(sx, sy, 0, sx, sy, W * 0.68);
+      spot.addColorStop(0,   'rgba(255,235,248,0.62)');
+      spot.addColorStop(0.35,'rgba(245,170,215,0.22)');
+      spot.addColorStop(0.7, 'rgba(210,90,155,0.06)');
+      spot.addColorStop(1,   'rgba(210,90,155,0)');
+      ctx.fillStyle = spot;
+      ctx.fillRect(0, 0, W, H);
+
+      /* L3 — depth fog rising from the bottom */
+      const fog = ctx.createRadialGradient(W*0.5, H*1.05, 0, W*0.5, H*0.52, H*0.88);
+      fog.addColorStop(0,   'rgba(148,22,88,0.42)');
+      fog.addColorStop(0.45,'rgba(185,50,120,0.12)');
+      fog.addColorStop(1,   'rgba(185,50,120,0)');
+      ctx.fillStyle = fog;
+      ctx.fillRect(0, 0, W, H);
+
+      /* L4 — vignette: soft dark edges push the eye inward */
+      const vig = ctx.createRadialGradient(W*0.5, H*0.48, H*0.2, W*0.5, H*0.48, Math.max(W, H) * 0.82);
+      vig.addColorStop(0,   'rgba(100,0,55,0)');
+      vig.addColorStop(0.55,'rgba(90,0,48,0.07)');
+      vig.addColorStop(1,   'rgba(60,0,32,0.35)');
+      ctx.fillStyle = vig;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    /* ── Links — two-pass: soft glow then bright core, sorted back→front ── */
+    function drawLinks() {
+      const pairs = [];
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i], b = nodes[j];
+          const dx = b.x - a.x, dy = b.y - a.y, d2 = dx*dx + dy*dy;
+          if (d2 < LINK*LINK) pairs.push([a, b, Math.sqrt(d2)]);
+        }
+      }
+      pairs.sort((p, q) => (p[0].z + p[1].z) - (q[0].z + q[1].z));
+
+      /* Pass 1 — wide soft glow */
+      for (const [a, b, dist] of pairs) {
+        const avgZ  = (a.z + b.z) * 0.5;
+        const fade  = 1 - dist / LINK;
+        const boost = (a.glow + b.glow) * 0.28;
+        const alpha = (fade * 0.22 + boost * 0.2) * (0.3 + avgZ * 0.7);
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.strokeStyle = `rgba(255,215,242,${alpha})`;
+        ctx.lineWidth   = (3 + avgZ * 4) + boost * 6;
+        ctx.stroke();
+      }
+
+      /* Pass 2 — narrow bright core */
+      for (const [a, b, dist] of pairs) {
+        const avgZ  = (a.z + b.z) * 0.5;
+        const fade  = 1 - dist / LINK;
+        const boost = (a.glow + b.glow) * 0.28;
+        const alpha = (fade * 0.6 + boost) * (0.35 + avgZ * 0.65);
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.strokeStyle = `rgba(255,240,250,${alpha})`;
+        ctx.lineWidth   = (0.7 + avgZ * 1.3) + boost * 2.2;
+        ctx.stroke();
+      }
+    }
+
+    /* ── Rings ── */
+    function drawRings() {
+      for (let i = rings.length - 1; i >= 0; i--) {
+        const rg = rings[i];
+        ctx.beginPath();
+        ctx.arc(rg.x, rg.y, rg.r, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(255,240,250,${rg.alpha})`;
+        ctx.lineWidth   = 1 + rg.z * 1.1;
+        ctx.stroke();
+        rg.r     += 1.1 + rg.z * 0.7;
+        rg.alpha -= 0.024;
+        if (rg.alpha <= 0) rings.splice(i, 1);
+      }
+    }
+
+    /* ── Loop — painter's algorithm: back nodes drawn first ── */
+    function loop(t) {
+      drawBg(t);
+      drawLinks();
+      drawRings();
+
+      for (let i = pulses.length - 1; i >= 0; i--) {
+        pulses[i].update();
+        if (pulses[i].done) pulses.splice(i, 1);
+        else pulses[i].draw();
+      }
+
+      nodes.sort((a, b) => a.z - b.z);           /* back→front */
+      nodes.forEach(n => { n.update(); n.draw(); });
+
+      checkMouseFire();
+      requestAnimationFrame(loop);
+    }
+
+    /* place nodes with minimum spacing so they spread across the canvas */
+    (function placeNodes() {
+      const minD = Math.sqrt((W * H) / COUNT) * 0.62;
+      let tries = 0;
+      while (nodes.length < COUNT && tries < COUNT * 40) {
+        tries++;
+        const x = minD * 0.5 + Math.random() * (W - minD);
+        const y = minD * 0.5 + Math.random() * (H - minD);
+        const ok = nodes.every(n => (n.x - x) ** 2 + (n.y - y) ** 2 >= minD * minD);
+        if (ok) { const n = new Node(); n.x = x; n.y = y; nodes.push(n); }
+      }
+    })();
+    setTimeout(autoFire, 700);
+    requestAnimationFrame(loop);
+  })();
+  </script>
 </body>
 </html>
