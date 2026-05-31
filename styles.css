@@ -419,11 +419,14 @@ footer        { animation-delay: 0.12s; }
   margin-bottom: 2rem;
 }
 .team-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 1.5rem;
+  justify-content: center;
 }
 .team-card {
+  flex: 0 0 250px;
+  width: 250px;
   background: rgba(255, 255, 255, 0.92);
   border-radius: var(--radius-card);
   padding: 1.6rem 1.35rem 2.6rem;
@@ -488,9 +491,11 @@ footer        { animation-delay: 0.12s; }
 
 .title-css-fallback.title-visible { display: block; }
 
-.dept-section { margin-bottom: 3rem; }
+.dept-section { margin-bottom: 3rem; text-align: center; }
 .founder-grid { margin-bottom: 1.75rem; }
 .founder-card {
+  flex: 1 1 175px;
+  max-width: 320px;
   background: linear-gradient(145deg, rgba(255,255,255,0.97), rgba(253,232,245,0.92));
   border: 2px solid rgba(232,121,176,0.55);
   box-shadow: 0 8px 36px rgba(232,121,176,0.42);
