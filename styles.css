@@ -424,23 +424,116 @@ footer        { animation-delay: 0.12s; }
   gap: 1.5rem;
 }
 .team-card {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.92);
   border-radius: var(--radius-card);
-  padding: 2rem 1.5rem;
+  padding: 1.6rem 1.35rem 2.6rem;
   text-align: center;
   box-shadow: 0 6px 24px var(--shadow-pink);
-  transition: transform 0.3s;
+  border: 1.5px solid rgba(232, 121, 176, 0.22);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
 }
-.team-card:hover { transform: translateY(-5px); }
-.team-avatar {
-  width: 72px; height: 72px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--pink-light), var(--pink-primary));
-  margin: 0 auto 1rem;
-  box-shadow: 0 4px 12px var(--shadow-pink);
+
+/* top gradient bar */
+.team-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--pink-light) 15%,
+    var(--pink-primary) 40%,
+    var(--pink-deep) 60%,
+    var(--pink-primary) 80%,
+    transparent 100%
+  );
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  box-shadow: 0 2px 10px rgba(232, 121, 176, 0.55), 0 1px 4px rgba(204, 77, 150, 0.3);
 }
-.team-card h4 { font-size: 0.95rem; font-weight: 800; color: var(--text-dark); margin-bottom: 0.25rem; }
-.team-card p  { font-size: 0.82rem; color: var(--text-light); }
+
+/* flower decoration — bottom center */
+.team-card::after {
+  content: '❀  ✿  ❁  ✿  ❀';
+  position: absolute;
+  bottom: 10px; left: 50%; transform: translateX(-50%);
+  font-size: 1.1rem;
+  color: rgba(232, 121, 176, 0.5);
+  white-space: nowrap;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 3px rgba(232,121,176,0.35));
+}
+
+.team-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 36px rgba(232,121,176,0.38);
+  border-color: rgba(232,121,176,0.45);
+}
+.team-card h4 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 0.3rem;
+  position: relative;
+}
+.team-card p {
+  font-size: 0.8rem;
+  color: var(--pink-deep);
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  position: relative;
+}
+
+.title-css-fallback.title-visible { display: block; }
+
+.dept-section { margin-bottom: 3rem; }
+.founder-grid { margin-bottom: 1.75rem; }
+.founder-card {
+  background: linear-gradient(145deg, rgba(255,255,255,0.97), rgba(253,232,245,0.92));
+  border: 2px solid rgba(232,121,176,0.55);
+  box-shadow: 0 8px 36px rgba(232,121,176,0.42);
+}
+.founder-card::before {
+  height: 6px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--pink-light) 10%,
+    var(--pink-primary) 30%,
+    var(--pink-deeper) 50%,
+    var(--pink-primary) 70%,
+    var(--pink-light) 90%,
+    transparent 100%
+  );
+  box-shadow: 0 3px 14px rgba(168, 58, 122, 0.6), 0 1px 5px rgba(232, 121, 176, 0.4);
+}
+.founder-card::after {
+  content: '✿  ❀  ❁  ❀  ✿  ❀  ❁  ❀  ✿';
+  font-size: 1.2rem;
+  color: rgba(204, 77, 150, 0.55);
+  filter: drop-shadow(0 1px 4px rgba(204,77,150,0.4));
+}
+.founder-card h4 {
+  font-size: 1.15rem;
+}
+.dept-label {
+  display: inline-block;
+  padding: 0.38rem 1.15rem;
+  background: linear-gradient(135deg, var(--pink-primary), var(--pink-deep));
+  color: white;
+  border-radius: 30px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 1.25rem;
+}
+
+.dept-label-sub {
+  background: linear-gradient(135deg, var(--pink-mid), var(--pink-primary));
+  margin-top: 0.25rem;
+}
 
 /* ── Research Cards ───────────────────────────────────────── */
 .research-card {
