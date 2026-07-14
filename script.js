@@ -1,5 +1,5 @@
 /* ============================================================
-   NEUROSPHERE — script.js
+   NEUROSPHERE script.js
    Multi-page: scroll progress, reveal animations, nav,
    hamburger, sphere parallax + sparkles
    ============================================================ */

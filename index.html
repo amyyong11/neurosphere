@@ -150,7 +150,7 @@
     const pulses = [];
     const rings  = [];
 
-    /* ── Node — has a z depth [0=far, 1=near] ── */
+    /* ── Node: has a z depth [0=far, 1=near] ── */
     class Node {
       constructor() {
         this.x     = Math.random() * W;
@@ -163,7 +163,7 @@
         this.glow  = 0;
         this.refractory = 0;
       }
-      /* perspective scale — near nodes are bigger */
+      /* perspective scale: near nodes are bigger */
       get r()     { return this.baseR * (0.35 + this.z * 0.9); }
       get alpha() { return 0.28 + this.z * 0.65; }
 
@@ -199,7 +199,7 @@
           ctx.fill();
         }
 
-        /* 3D sphere — bright white core fading to deep pink rim */
+        /* 3D sphere: bright white core fading to deep pink rim */
         const hx = this.x - r * 0.28;
         const hy = this.y - r * 0.28;
         const sg = ctx.createRadialGradient(hx, hy, 0, this.x, this.y, r + this.glow * 2.2);
@@ -215,7 +215,7 @@
       }
     }
 
-    /* ── Pulse — size & brightness scale with depth ── */
+    /* ── Pulse: size & brightness scale with depth ── */
     class Pulse {
       constructor(from, to, cascade) {
         this.from    = from;
@@ -285,7 +285,7 @@
 
     /* ── Background: 4 layered gradients for 3D depth ── */
     function drawBg(t) {
-      /* L1 — base: warm light at top → deep magenta at bottom */
+      /* L1 base: warm light at top → deep magenta at bottom */
       const base = ctx.createLinearGradient(W * 0.45, 0, W * 0.55, H);
       base.addColorStop(0,    '#fff0fa');
       base.addColorStop(0.42, '#f9cce8');
@@ -294,7 +294,7 @@
       ctx.fillStyle = base;
       ctx.fillRect(0, 0, W, H);
 
-      /* L2 — animated spotlight drifting slowly (gives life to bg) */
+      /* L2: animated spotlight drifting slowly (gives life to bg) */
       const sx = W * (0.42 + Math.sin(t * 0.00028) * 0.14);
       const sy = H * (0.14 + Math.cos(t * 0.00019) * 0.09);
       const spot = ctx.createRadialGradient(sx, sy, 0, sx, sy, W * 0.68);
@@ -305,7 +305,7 @@
       ctx.fillStyle = spot;
       ctx.fillRect(0, 0, W, H);
 
-      /* L3 — depth fog rising from the bottom */
+      /* L3: depth fog rising from the bottom */
       const fog = ctx.createRadialGradient(W*0.5, H*1.05, 0, W*0.5, H*0.52, H*0.88);
       fog.addColorStop(0,   'rgba(148,22,88,0.42)');
       fog.addColorStop(0.45,'rgba(185,50,120,0.12)');
@@ -313,7 +313,7 @@
       ctx.fillStyle = fog;
       ctx.fillRect(0, 0, W, H);
 
-      /* L4 — vignette: soft dark edges push the eye inward */
+      /* L4 vignette: soft dark edges push the eye inward */
       const vig = ctx.createRadialGradient(W*0.5, H*0.48, H*0.2, W*0.5, H*0.48, Math.max(W, H) * 0.82);
       vig.addColorStop(0,   'rgba(100,0,55,0)');
       vig.addColorStop(0.55,'rgba(90,0,48,0.07)');
@@ -322,7 +322,7 @@
       ctx.fillRect(0, 0, W, H);
     }
 
-    /* ── Links — two-pass: soft glow then bright core, sorted back→front ── */
+    /* ── Links: two-pass, soft glow then bright core, sorted back→front ── */
     function drawLinks() {
       const pairs = [];
       for (let i = 0; i < nodes.length; i++) {
@@ -334,7 +334,7 @@
       }
       pairs.sort((p, q) => (p[0].z + p[1].z) - (q[0].z + q[1].z));
 
-      /* Pass 1 — wide soft glow */
+      /* Pass 1: wide soft glow */
       for (const [a, b, dist] of pairs) {
         const avgZ  = (a.z + b.z) * 0.5;
         const fade  = 1 - dist / LINK;
@@ -348,7 +348,7 @@
         ctx.stroke();
       }
 
-      /* Pass 2 — narrow bright core */
+      /* Pass 2: narrow bright core */
       for (const [a, b, dist] of pairs) {
         const avgZ  = (a.z + b.z) * 0.5;
         const fade  = 1 - dist / LINK;
@@ -378,7 +378,7 @@
       }
     }
 
-    /* ── Loop — painter's algorithm: back nodes drawn first ── */
+    /* ── Loop: painter's algorithm, back nodes drawn first ── */
     function loop(t) {
       drawBg(t);
       drawLinks();

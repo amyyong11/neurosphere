@@ -16,5 +16,5 @@ Place the following PNG files in this folder. All images should have transparent
 | `donate.png`             | 3D "Donate" bubbly text                         |
 | `contact-us.png`         | 3D "Contact Us" bubbly text                     |
 
-> The site includes CSS fallbacks — it will look great even before images are added,
+> The site includes CSS fallbacks. It will look great even before images are added,
 > and will automatically display the PNG assets once they're dropped in here.
