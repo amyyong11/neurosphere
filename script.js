@@ -91,11 +91,17 @@ qsa('.cards-grid, .booklets-grid, .podcast-list, .donate-tiers, .team-grid, .new
   const closeBtn = qs('#pdfLightboxClose');
   if (!lightbox || !frame) return;
 
+  /* iOS Safari doesn't support Fullscreen on arbitrary elements —
+     skip it there and rely on the overlay's own close button instead. */
+  function isTouchDevice() {
+    return window.matchMedia('(hover: none), (pointer: coarse)').matches;
+  }
+
   function openLightbox(pdfUrl, title) {
-    frame.src   = pdfUrl;
+    frame.src   = pdfUrl + '#view=FitH';
     frame.title = title || 'Newsletter';
     lightbox.hidden = false;
-    if (lightbox.requestFullscreen) lightbox.requestFullscreen().catch(() => {});
+    if (!isTouchDevice() && lightbox.requestFullscreen) lightbox.requestFullscreen().catch(() => {});
   }
   function closeLightbox() {
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
