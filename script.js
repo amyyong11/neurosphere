@@ -91,17 +91,22 @@ qsa('.cards-grid, .booklets-grid, .podcast-list, .donate-tiers, .team-grid, .new
   const closeBtn = qs('#pdfLightboxClose');
   if (!lightbox || !frame) return;
 
-  /* iOS Safari doesn't support Fullscreen on arbitrary elements —
-     skip it there and rely on the overlay's own close button instead. */
+  /* Mobile browsers (iOS Safari especially) ignore the "fit width"
+     instruction for PDFs embedded in an iframe — hand off to the
+     device's own PDF viewer instead, which fits and zooms correctly. */
   function isTouchDevice() {
     return window.matchMedia('(hover: none), (pointer: coarse)').matches;
   }
 
   function openLightbox(pdfUrl, title) {
+    if (isTouchDevice()) {
+      window.location.href = pdfUrl;
+      return;
+    }
     frame.src   = pdfUrl + '#view=FitH';
     frame.title = title || 'Newsletter';
     lightbox.hidden = false;
-    if (!isTouchDevice() && lightbox.requestFullscreen) lightbox.requestFullscreen().catch(() => {});
+    if (lightbox.requestFullscreen) lightbox.requestFullscreen().catch(() => {});
   }
   function closeLightbox() {
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
