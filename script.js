@@ -80,9 +80,44 @@ const groupObserver = new IntersectionObserver(
   { threshold: 0.06 }
 );
 
-qsa('.cards-grid, .booklets-grid, .podcast-list, .donate-tiers, .team-grid').forEach(g =>
+qsa('.cards-grid, .booklets-grid, .podcast-list, .donate-tiers, .team-grid, .newsletter-grid').forEach(g =>
   groupObserver.observe(g)
 );
+
+/* ── Newsletter poster grid: click a cover to read fullscreen ──── */
+(function () {
+  const lightbox = qs('#pdfLightbox');
+  const frame    = qs('#pdfLightboxFrame');
+  const closeBtn = qs('#pdfLightboxClose');
+  if (!lightbox || !frame) return;
+
+  function openLightbox(pdfUrl, title) {
+    frame.src   = pdfUrl;
+    frame.title = title || 'Newsletter';
+    lightbox.hidden = false;
+    if (lightbox.requestFullscreen) lightbox.requestFullscreen().catch(() => {});
+  }
+  function closeLightbox() {
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    lightbox.hidden = true;
+    frame.src = '';
+  }
+
+  qsa('.newsletter-poster').forEach(tile => {
+    tile.addEventListener('click', () => openLightbox(tile.dataset.pdf, tile.dataset.title));
+    tile.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openLightbox(tile.dataset.pdf, tile.dataset.title);
+      }
+    });
+  });
+  if (closeBtn) closeBtn.addEventListener('click', closeLightbox);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !lightbox.hidden) closeLightbox(); });
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && !lightbox.hidden) closeLightbox();
+  });
+})();
 
 /* ── Sphere parallax ─────────────────────────────────────── */
 function sphereParallax() {

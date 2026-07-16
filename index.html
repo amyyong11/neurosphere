@@ -21,7 +21,7 @@
       z-index: 0;
     }
     /* Lift page sections above canvas */
-    .page-hero { position: relative; z-index: 1; }
+    .page-hero, main, .page-content { position: relative; z-index: 1; }
     footer     { position: relative; z-index: 1; }
   </style>
 </head>
@@ -45,6 +45,7 @@
         <li><a href="join/" class="nav-link">JOIN US</a></li>
         <li><a href="opportunities/" class="nav-link">OPPORTUNITIES</a></li>
         <li><a href="booklets/" class="nav-link">BOOKLETS</a></li>
+        <li><a href="newsletters/" class="nav-link">NEWSLETTER</a></li>
 <li><a href="donate/" class="nav-link">DONATE</a></li>
       </ul>
       <button class="hamburger" id="hamburger" aria-label="Toggle menu">
@@ -67,6 +68,48 @@
       <a href="about/" class="btn-primary">Explore &darr;</a>
     </div>
   </section>
+
+  <!-- NEWSLETTER -->
+  <main class="page-content">
+    <div class="container">
+      <p class="section-intro reveal-item">Catch up on NeuroSphere's monthly newsletter, covering research highlights, chapter updates, and upcoming opportunities.</p>
+      <div class="newsletter-grid">
+        <div class="newsletter-poster reveal-item" data-pdf="newsletters/files/2026/07.pdf" data-title="July 2026 Newsletter" role="button" tabindex="0" aria-label="Read July 2026 Newsletter, fullscreen">
+          <div class="poster-thumb">
+            <img src="newsletters/covers/07-cover.png" alt="" loading="lazy" />
+            <div class="poster-overlay">
+              <div class="poster-overlay-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+                <span>Read Fullscreen</span>
+              </div>
+            </div>
+          </div>
+          <div class="poster-meta">
+            <span class="newsletter-tag">Issue 02</span>
+            <h3>July 2026 Newsletter</h3>
+          </div>
+        </div>
+        <div class="newsletter-poster reveal-item" data-pdf="newsletters/files/2026/06.pdf" data-title="June 2026 Newsletter" role="button" tabindex="0" aria-label="Read June 2026 Newsletter, fullscreen">
+          <div class="poster-thumb">
+            <img src="newsletters/covers/06-cover.png" alt="" loading="lazy" />
+            <div class="poster-overlay">
+              <div class="poster-overlay-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+                <span>Read Fullscreen</span>
+              </div>
+            </div>
+          </div>
+          <div class="poster-meta">
+            <span class="newsletter-tag">Issue 01</span>
+            <h3>June 2026 Newsletter</h3>
+          </div>
+        </div>
+      </div>
+      <div class="join-cta reveal-item">
+        <a href="newsletters/" class="btn-secondary">View All Newsletters</a>
+      </div>
+    </div>
+  </main>
 
   <!-- FOOTER -->
   <footer id="contact">
@@ -126,6 +169,12 @@
     </div>
     <div class="footer-bottom"><p>@ NeuroSphere Int. 2026</p></div>
   </footer>
+
+  <!-- NEWSLETTER FULLSCREEN VIEWER -->
+  <div class="pdf-lightbox" id="pdfLightbox" hidden>
+    <button type="button" class="pdf-lightbox-close" id="pdfLightboxClose" aria-label="Close">&times;</button>
+    <iframe id="pdfLightboxFrame" class="pdf-lightbox-frame" title="Newsletter viewer"></iframe>
+  </div>
 
   <script src="script.js"></script>
   <script>
