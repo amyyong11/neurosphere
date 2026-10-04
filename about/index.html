@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <link rel="stylesheet" href="../styles.css" />
   <style>
     body { background: transparent; }
@@ -70,7 +71,7 @@
           <p>We publish weekly news carousels that shine a spotlight on neurodegenerative diseases, connect students with resources to pursue neuroscience in college, and offer chapter and leadership roles, research programs, internships, volunteer opportunities, and interactive virtual workshops.</p>
         </div>
       </div>
-      <div class="cta-banner reveal-item">
+      <div class="cta-banner acc-ribbon reveal-item">
         <h3>General Membership</h3>
         <p>General Membership is for individual students who want to join the wider NeuroSphere community. High school and undergraduate students are welcome to apply for access to member-only online volunteering opportunities, priority acceptance for research and internship opportunities, and access to our discord.</p>
         <a href="https://docs.google.com/forms/d/e/1FAIpQLScb6RxVWQh8i6EhS3TeOIGHgsnUER3K3UlVdLD_7_-CK2lu1A/viewform" class="btn-primary" target="_blank" rel="noreferrer">Apply as a General Member</a>
@@ -347,14 +348,8 @@
             <h3>Chapter Map</h3>
             <p>Active NeuroSphere chapters across the globe.</p>
           </div>
-          <div class="chapter-map" aria-label="Map of current NeuroSphere chapter locations">
-            <iframe
-              title="Google map of active NeuroSphere chapter locations"
-              src="https://www.google.com/maps?q=Gurugram%2C%20India%7CHanford%2C%20CA%2C%20US%7CCoppell%2C%20TX%2C%20US%7CSmithtown%2C%20NY%2C%20US%7CTaiwan%7CBengaluru%2C%20India%7CToronto%2C%20ON%2C%20Canada%7CRancho%20Cucamonga%2C%20CA%2C%20US%7CColumbus%2C%20OH%2C%20US&z=2&output=embed"
-              loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade"
-              allowfullscreen
-            ></iframe>
+          <div class="chapter-laptop">
+            <div class="chapter-map" id="chapterMap" role="region" aria-label="Map of current NeuroSphere chapter locations"></div>
           </div>
         </div>
       </section>
@@ -405,7 +400,7 @@
           <p>Columbus, Ohio, US</p>
         </div>
       </div>
-      <div class="cta-banner reveal-item">
+      <div class="cta-banner acc-pin reveal-item">
         <h3>Starting a Chapter</h3>
         <p>Chapter applications are for students who want to establish and lead an official NeuroSphere branch at a school, university campus, or within a local community. All chapter participants must also be registered general members.</p>
         <a href="https://docs.google.com/forms/d/e/1FAIpQLSfRv4xLo8u57vLm5TaCVzo7uBsyHgvIk6TsEg5zqjYQNGKn2w/viewform" class="btn-primary" target="_blank" rel="noreferrer" style="margin-right: 1rem;">Apply for a Chapter</a>
@@ -480,6 +475,50 @@
   </footer>
 
   <script src="../script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script>
+  (function () {
+    const el = document.getElementById('chapterMap');
+    if (!el || typeof L === 'undefined') return;
+    const chapters = [
+      ['NeuroSphere @ Gurugram', 'Gurugram, India', 28.4595, 77.0266, 'right'],
+      ['NeuroSphere @ Hanford', 'Hanford, California, US', 36.3275, -119.6457, 'left'],
+      ['NeuroSphere @ Coppell', 'Coppell, Texas, US', 32.9546, -97.0150, 'right'],
+      ['NeuroSphere @ Smithtown', 'Smithtown, New York, US', 40.8559, -73.2007, 'right'],
+      ['NeuroSphere @ Taiwan', 'Taiwan', 23.6978, 120.9605, 'right'],
+      ['NeuroSphere @ Bengaluru', 'Bengaluru, India', 12.9716, 77.5946, 'right'],
+      ['NeuroSphere @ University of Toronto', 'Toronto, Ontario, Canada', 43.6629, -79.3957, 'top'],
+      ['NeuroSphere @ Etiwanda High School', 'Rancho Cucamonga, California, US', 34.1206, -117.5130, 'bottom'],
+      ['NeuroSphere @ Columbus', 'Columbus, Ohio, US', 39.9612, -82.9988, 'left']
+    ];
+    const map = L.map(el, { scrollWheelZoom: true, keyboard: true, worldCopyJump: true, zoomSnap: 0.25, zoomDelta: 0.5, wheelPxPerZoomLevel: 90 });
+    el.addEventListener('mouseenter', () => el.focus({ preventScroll: true }));
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, USGS, NGA, EPA, USDA, NPS'
+    }).addTo(map);
+    const pin = L.divIcon({
+      className: 'chapter-pin',
+      html: '<svg viewBox="0 0 24 36" width="27" height="40" aria-hidden="true"><path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24s12-15 12-24C24 5.4 18.6 0 12 0z" fill="#ea4335" stroke="#b31412" stroke-width="1"/><circle cx="12" cy="12" r="4.5" fill="#b31412"/></svg>',
+      iconSize: [27, 40],
+      iconAnchor: [13.5, 40],
+      popupAnchor: [0, -36],
+      tooltipAnchor: [0, -24]
+    });
+    const markers = chapters.map(([name, place, lat, lng, side]) =>
+      L.marker([lat, lng], { icon: pin, title: name })
+        .bindTooltip(name.replace('NeuroSphere @ ', ''), {
+          permanent: true,
+          direction: side,
+          offset: { left: [-12, 0], right: [12, 0], top: [0, -16], bottom: [0, 26] }[side],
+          className: 'chapter-label'
+        })
+        .bindPopup('<strong>' + name + '</strong><br>' + place)
+        .addTo(map)
+    );
+    map.fitBounds(L.featureGroup(markers).getBounds(), { paddingTopLeft: [70, 20], paddingBottomRight: [90, 20] });
+  })();
+  </script>
   <script>
   (function () {
     const canvas = document.getElementById('neuralCanvas');

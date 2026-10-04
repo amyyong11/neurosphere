@@ -55,39 +55,52 @@
   <!-- CONTENT -->
   <main class="page-content">
     <div class="container">
-      <p class="section-intro reveal-item">Catch up on NeuroSphere's monthly newsletter, covering research highlights, chapter updates, and upcoming opportunities.</p>
+      <div class="camera-intro reveal-item">
+        <p>Catch up on NeuroSphere's monthly newsletter, covering research highlights, chapter updates, and upcoming opportunities.</p>
+      </div>
 
       <div class="newsletter-grid">
-        <div class="newsletter-poster reveal-item" id="july-2026" data-pdf="files/2026/07.pdf" data-title="July 2026 Newsletter" role="button" tabindex="0" aria-label="Read July 2026 Newsletter, fullscreen">
+        <div class="newsletter-poster reveal-item" id="september-2026" data-pdf="files/2026/09.pdf" data-pages="pages/09" data-count="22" data-title="September 2026 Newsletter" role="button" tabindex="0" aria-label="Read the September 2026 Newsletter">
+          <div class="poster-thumb">
+            <img src="covers/09-cover.png" alt="" loading="lazy" />
+          </div>
+          <div class="poster-meta">
+            <span class="newsletter-tag">Issue 04</span>
+            <h3>September 2026 Newsletter</h3>
+            <span class="poster-read">Read issue · 22 pages</span>
+          </div>
+        </div>
+        <div class="newsletter-poster reveal-item" id="august-2026" data-pdf="files/2026/08.pdf" data-pages="pages/08" data-count="14" data-title="August 2026 Newsletter" role="button" tabindex="0" aria-label="Read the August 2026 Newsletter">
+          <div class="poster-thumb">
+            <img src="covers/08-cover.png" alt="" loading="lazy" />
+          </div>
+          <div class="poster-meta">
+            <span class="newsletter-tag">Issue 03</span>
+            <h3>August 2026 Newsletter</h3>
+            <span class="poster-read">Read issue · 14 pages</span>
+          </div>
+        </div>
+        <div class="newsletter-poster reveal-item" id="july-2026" data-pdf="files/2026/07.pdf" data-pages="pages/07" data-count="16" data-title="July 2026 Newsletter" role="button" tabindex="0" aria-label="Read the July 2026 Newsletter">
           <div class="poster-thumb">
             <img src="covers/07-cover.png" alt="" loading="lazy" />
-            <div class="poster-overlay">
-              <div class="poster-overlay-box">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
-                <span>Read Fullscreen</span>
-              </div>
-            </div>
           </div>
           <div class="poster-meta">
             <span class="newsletter-tag">Issue 02</span>
             <h3>July 2026 Newsletter</h3>
+            <span class="poster-read">Read issue · 16 pages</span>
           </div>
         </div>
-
-        <div class="newsletter-poster reveal-item" id="june-2026" data-pdf="files/2026/06.pdf" data-title="June 2026 Newsletter" role="button" tabindex="0" aria-label="Read June 2026 Newsletter, fullscreen">
+        <div class="newsletter-poster reveal-item" id="june-2026" data-pdf="files/2026/06.pdf" data-pages="pages/06" data-count="20" data-title="June 2026 Newsletter" role="button" tabindex="0" aria-label="Read the June 2026 Newsletter">
           <div class="poster-thumb">
             <img src="covers/06-cover.png" alt="" loading="lazy" />
-            <div class="poster-overlay">
-              <div class="poster-overlay-box">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="26" height="26"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
-                <span>Read Fullscreen</span>
-              </div>
-            </div>
           </div>
           <div class="poster-meta">
             <span class="newsletter-tag">Issue 01</span>
             <h3>June 2026 Newsletter</h3>
+            <span class="poster-read">Read issue · 20 pages</span>
           </div>
+        </div>
+      </div>
         </div>
       </div>
 
@@ -153,14 +166,17 @@
     <div class="footer-bottom"><p>@ NeuroSphere Int. 2026</p></div>
   </footer>
 
-  <!-- NEWSLETTER FULLSCREEN VIEWER -->
-  <div class="pdf-lightbox" id="pdfLightbox" hidden>
-    <div class="pdf-lightbox-bar">
-      <button type="button" class="pdf-lightbox-close" id="pdfLightboxClose" aria-label="Close newsletter">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      </button>
+  <!-- NEWSLETTER READER -->
+  <div class="nl-reader" id="nlReader" hidden role="dialog" aria-modal="true" aria-labelledby="nlTitle">
+    <div class="nl-bar">
+      <div class="nl-bar-text">
+        <strong id="nlTitle">Newsletter</strong>
+        <span id="nlCount"></span>
+      </div>
+      <a id="nlDownload" class="nl-btn" href="#" target="_blank" rel="noreferrer">Download PDF</a>
+      <button type="button" class="nl-btn nl-close" id="nlClose" aria-label="Close newsletter">✕</button>
     </div>
-    <iframe id="pdfLightboxFrame" class="pdf-lightbox-frame" title="Newsletter viewer"></iframe>
+    <div class="nl-pages" id="nlPages"></div>
   </div>
 
   <script src="../script.js"></script>

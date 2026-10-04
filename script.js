@@ -84,50 +84,60 @@ qsa('.cards-grid, .booklets-grid, .podcast-list, .donate-tiers, .team-grid, .new
   groupObserver.observe(g)
 );
 
-/* ── Newsletter poster grid: click a cover to read fullscreen ──── */
+/* ── Newsletter reader: click a cover to read page by page ──── */
 (function () {
-  const lightbox = qs('#pdfLightbox');
-  const frame    = qs('#pdfLightboxFrame');
-  const closeBtn = qs('#pdfLightboxClose');
-  if (!lightbox || !frame) return;
+  const reader = qs('#nlReader');
+  if (!reader) return;
+  const pagesEl = qs('#nlPages', reader);
+  const titleEl = qs('#nlTitle', reader);
+  const countEl = qs('#nlCount', reader);
+  const dlEl    = qs('#nlDownload', reader);
+  const closeEl = qs('#nlClose', reader);
+  let lastFocus = null;
 
-  /* Mobile browsers (iOS Safari especially) ignore the "fit width"
-     instruction for PDFs embedded in an iframe — hand off to the
-     device's own PDF viewer instead, which fits and zooms correctly. */
-  function isTouchDevice() {
-    return window.matchMedia('(hover: none), (pointer: coarse)').matches;
-  }
-
-  function openLightbox(pdfUrl, title) {
-    if (isTouchDevice()) {
-      window.location.href = pdfUrl;
-      return;
+  function open(tile) {
+    const dir = tile.dataset.pages, n = +tile.dataset.count;
+    titleEl.textContent = tile.dataset.title;
+    dlEl.href = tile.dataset.pdf;
+    pagesEl.innerHTML = '';
+    for (let i = 1; i <= n; i++) {
+      const img = document.createElement('img');
+      img.src = `${dir}/${String(i).padStart(2, '0')}.jpg`;
+      img.alt = `${tile.dataset.title}, page ${i} of ${n}`;
+      img.loading = i <= 2 ? 'eager' : 'lazy';
+      img.decoding = 'async';
+      img.dataset.page = i;
+      pagesEl.appendChild(img);
     }
-    frame.src   = pdfUrl + '#view=FitH';
-    frame.title = title || 'Newsletter';
-    lightbox.hidden = false;
-    if (lightbox.requestFullscreen) lightbox.requestFullscreen().catch(() => {});
+    countEl.textContent = `Page 1 of ${n}`;
+    lastFocus = document.activeElement;
+    reader.hidden = false;
+    document.body.style.overflow = 'hidden';
+    pagesEl.scrollTop = 0;
+    closeEl.focus();
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(en => { if (en.isIntersecting) countEl.textContent = `Page ${en.target.dataset.page} of ${n}`; });
+    }, { root: pagesEl, threshold: 0.5 });
+    qsa('img', pagesEl).forEach(img => io.observe(img));
+    reader._io = io;
   }
-  function closeLightbox() {
-    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-    lightbox.hidden = true;
-    frame.src = '';
+  function close() {
+    reader.hidden = true;
+    document.body.style.overflow = '';
+    if (reader._io) reader._io.disconnect();
+    pagesEl.innerHTML = '';
+    if (lastFocus) lastFocus.focus();
   }
 
   qsa('.newsletter-poster').forEach(tile => {
-    tile.addEventListener('click', () => openLightbox(tile.dataset.pdf, tile.dataset.title));
+    tile.addEventListener('click', () => open(tile));
     tile.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        openLightbox(tile.dataset.pdf, tile.dataset.title);
-      }
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(tile); }
     });
   });
-  if (closeBtn) closeBtn.addEventListener('click', closeLightbox);
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !lightbox.hidden) closeLightbox(); });
-  document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement && !lightbox.hidden) closeLightbox();
-  });
+  closeEl.addEventListener('click', close);
+  reader.addEventListener('click', e => { if (e.target === reader || e.target === pagesEl) close(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !reader.hidden) close(); });
 })();
 
 /* ── Sphere parallax ─────────────────────────────────────── */
@@ -139,7 +149,7 @@ function sphereParallax() {
     if (rect.bottom < 0 || rect.top > window.innerHeight) return;
     const mid    = rect.top + rect.height / 2 - window.innerHeight / 2;
     const offset = mid * 0.04;
-    wrap.style.transform = `translateY(${offset}px)`;
+    wrap.style.transform = `translateY(${offset}px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))`;
   });
 }
 
@@ -227,3 +237,56 @@ window.addEventListener('scroll', () => {
 handleNavScroll();
 updateScrollProgress();
 initSphereEntrance();
+
+/* Living sphere: twinkling sparkles + gentle pointer tilt */
+(function () {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.sphere-wrap').forEach(wrap => {
+    for (let i = 0; i < 7; i++) {
+      const s = document.createElement('span');
+      s.className = 'sphere-spark';
+      const a = Math.random() * Math.PI * 2, r = 38 + Math.random() * 14;
+      s.style.left = (50 + Math.cos(a) * r) + '%';
+      s.style.top = (50 + Math.sin(a) * r) + '%';
+      const size = 8 + Math.random() * 12;
+      s.style.width = s.style.height = size + 'px';
+      s.style.animationDelay = (-Math.random() * 2.8).toFixed(2) + 's';
+      s.style.animationDuration = (2.2 + Math.random() * 1.8).toFixed(2) + 's';
+      wrap.appendChild(s);
+    }
+    if (reduce) return;
+    const hero = wrap.closest('.page-hero') || wrap;
+    hero.addEventListener('mousemove', e => {
+      const b = wrap.getBoundingClientRect();
+      const x = (e.clientX - (b.left + b.width / 2)) / b.width;
+      const y = (e.clientY - (b.top + b.height / 2)) / b.height;
+      wrap.style.setProperty('--tilt-y', (x * 14).toFixed(2) + 'deg');
+      wrap.style.setProperty('--tilt-x', (-y * 14).toFixed(2) + 'deg');
+      if (!/rotateX/.test(wrap.style.transform)) wrap.style.transform = 'rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))';
+    });
+    hero.addEventListener('mouseleave', () => { wrap.style.setProperty('--tilt-x', '0deg'); wrap.style.setProperty('--tilt-y', '0deg'); });
+  });
+})();
+
+/* Fit text inside paper elements: shrink it until nothing overflows the paper area */
+(function () {
+  const SEL = '.benefit-card, .floral-intro, .matcha-intro, .wavy-intro, .torn-intro, .card, .chapter-card, .research-card.note-card, .announce p, .camera-intro p, .podcast-phone p';
+  const TXT = 'h3, h4, p, a, span';
+  function fit(box) {
+    const parts = box.matches('p') ? [box] : [box, ...box.querySelectorAll(TXT)];
+    parts.forEach(el => { el.style.fontSize = ''; });
+    const base = parts.map(el => parseFloat(getComputedStyle(el).fontSize));
+    const over = () => box.scrollHeight > box.clientHeight + 1 || box.scrollWidth > box.clientWidth + 1;
+    let k = 1;
+    while (over() && k > 0.55) {
+      k -= 0.04;
+      parts.forEach((el, i) => { el.style.fontSize = (base[i] * k).toFixed(2) + 'px'; });
+    }
+  }
+  function fitAll() { document.querySelectorAll(SEL).forEach(fit); }
+  let t;
+  window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(fitAll, 120); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
+  window.addEventListener('load', fitAll);
+  fitAll();
+})();
