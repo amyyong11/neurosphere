@@ -2443,7 +2443,7 @@ footer::before {
 .benefit-card .btn-secondary { align-self: flex-start; margin-top: 0.4rem; }
 .sticky-paperclip   { background-image: url('images/elements/sticky-paperclip.png');   aspect-ratio: 493 / 540; padding: 30.5% 16% 6% 14%; }
 .sticky-grid-clips  { background-image: url('images/elements/sticky-grid-clips.png');  aspect-ratio: 340 / 359; padding: 20% 6% 6.5% 16%; }
-.sticky-gingham-pin { background-image: url('images/elements/sticky-gingham-pin.png'); aspect-ratio: 551 / 412; padding: 16.5% 17% 12% 14%; }
+.sticky-gingham-pin { background-image: url('images/elements/sticky-gingham-pin.png'); aspect-ratio: 551 / 412; padding: 12% 14% 12% 15%; }
 .sticky-index-dots  { background-image: url('images/elements/sticky-index-dots.png');  aspect-ratio: 571 / 406; padding: 17% 14% 7% 26%; }
 .sticky-clipboard   { background-image: url('images/elements/sticky-clipboard.png');   aspect-ratio: 548 / 506; padding: 26% 7% 10% 19%; }
 .sticky-stars       { background-image: url('images/elements/sticky-stars.png');       aspect-ratio: 625 / 429; padding: 29% 17% 14% 18%; }
@@ -2587,7 +2587,7 @@ footer::before {
 .chapter-card { text-align: center; }
 .chapter-card h3 { overflow-wrap: break-word; hyphens: auto; }
 .sticky-envelope-stamp { background-image: url('images/elements/sticky-envelope-stamp.png'); aspect-ratio: 571 / 331; padding: 9% 36% 9% 12%; }
-.sticky-gingham-clip   { background-image: url('images/elements/sticky-gingham-clip.png');   aspect-ratio: 562 / 640; padding: 24% 9% 12% 21%; }
+.sticky-gingham-clip   { background-image: url('images/elements/sticky-gingham-clip.png');   aspect-ratio: 562 / 640; padding: 22% 10% 10% 21%; }
 
 /* ── Research department cards: rotating folders, sized to each image ── */
 .research-card[class*="folder-"] {
@@ -2608,14 +2608,6 @@ footer::before {
     linear-gradient(rgba(255, 246, 250, 0.62), rgba(255, 246, 250, 0.62)),
     url('images/elements/bg-plaid.jpg') center / 420px auto repeat;
 }
-/* Gingham clip sticky: compact, hugging its text */
-.benefit-card.sticky-gingham-clip {
-  width: min(330px, 100%);
-  justify-self: start;
-  padding: 26% 12% 14% 22%;
-}
-.benefit-card.sticky-gingham-clip h3 { font-size: 0.95rem; }
-.benefit-card.sticky-gingham-clip p  { font-size: 0.8rem; line-height: 1.5; }
 
 /* Research intro → box on pink silk */
 .silk-intro {
@@ -2637,3 +2629,11 @@ footer::before {
 }
 @media (max-width: 600px) { .silk-intro { padding: 1.75rem 1.25rem; } }
 .research-card.folder-main { background-image: url('images/elements/folder-main.png'); aspect-ratio: 636 / 499; padding: 22% 8% 7% 8%; }
+
+/* Paper notes keep their shape: text never stretches the image */
+.benefit-card, .matcha-intro, .chapter-card, .card { min-height: 0; height: auto; }
+.benefit-card { overflow: hidden; }
+@media (max-width: 600px) {
+  .benefit-card h3 { font-size: 0.95rem; }
+  .benefit-card p  { font-size: 0.82rem; line-height: 1.5; }
+}

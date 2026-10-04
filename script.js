@@ -268,17 +268,31 @@ initSphereEntrance();
   });
 })();
 
-/* Fit text inside paper elements: shrink it until nothing overflows the paper area */
+/* Fit text inside paper elements: shrink it until it sits within the writing area
+   (the box minus its padding, which is where clips, tape and stamps live) */
 (function () {
-  const SEL = '.benefit-card, .floral-intro, .matcha-intro, .wavy-intro, .torn-intro, .card, .chapter-card, .research-card.note-card, .announce p, .camera-intro p, .podcast-phone p';
+  const SEL = '.benefit-card, .matcha-intro, .card, .chapter-card, .research-card, .announce p, .camera-intro p, .podcast-phone p';
   const TXT = 'h3, h4, p, a, span';
+  function fits(box) {
+    const cs = getComputedStyle(box);
+    const r = box.getBoundingClientRect();
+    const top = r.top + parseFloat(cs.paddingTop) + parseFloat(cs.borderTopWidth) - 1;
+    const bottom = r.bottom - parseFloat(cs.paddingBottom) - parseFloat(cs.borderBottomWidth) + 1;
+    const left = r.left + parseFloat(cs.paddingLeft) - 1;
+    const right = r.right - parseFloat(cs.paddingRight) + 1;
+    const kids = box.matches('p') ? [box] : [...box.children].filter(k => getComputedStyle(k).position !== 'absolute');
+    if (box.matches('p')) return box.scrollHeight <= box.clientHeight + 1;
+    return kids.every(k => {
+      const q = k.getBoundingClientRect();
+      return q.top >= top && q.bottom <= bottom && q.left >= left && q.right <= right;
+    });
+  }
   function fit(box) {
     const parts = box.matches('p') ? [box] : [box, ...box.querySelectorAll(TXT)];
     parts.forEach(el => { el.style.fontSize = ''; });
     const base = parts.map(el => parseFloat(getComputedStyle(el).fontSize));
-    const over = () => box.scrollHeight > box.clientHeight + 1 || box.scrollWidth > box.clientWidth + 1;
     let k = 1;
-    while (over() && k > 0.55) {
+    while (!fits(box) && k > 0.5) {
       k -= 0.04;
       parts.forEach((el, i) => { el.style.fontSize = (base[i] * k).toFixed(2) + 'px'; });
     }
