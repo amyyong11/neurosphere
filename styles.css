@@ -2399,18 +2399,26 @@ footer::before {
   box-shadow: 0 2px 8px rgba(150, 30, 95, 0.2);
 }
 .nl-close { width: 40px; height: 40px; padding: 0; font-size: 1rem; }
+.nl-btn:disabled { opacity: 0.45; cursor: default; }
+.nl-zoom { flex: none; display: flex; align-items: center; gap: 0.3rem; }
+.nl-zoom-btn { width: 36px; height: 36px; padding: 0; font-size: 1.15rem; line-height: 1; }
+.nl-zoom-level { min-width: 3.6rem; padding: 0.55rem 0.5rem; font-variant-numeric: tabular-nums; }
 .nl-pages {
   flex: 1;
-  overflow-y: auto;
+  overflow: auto;
   overscroll-behavior: contain;
   padding: 1.5rem clamp(0.5rem, 3vw, 2rem) 3rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  /* flex-start + auto margins (not align-items: center) so zoomed-in pages stay scrollable on the left */
+  align-items: flex-start;
   gap: 1.25rem;
 }
 .nl-pages img {
-  width: min(900px, 100%);
+  flex: none;
+  width: calc(min(900px, 100%) * var(--nl-zoom, 1));
+  max-width: none;
+  margin-inline: auto;
   height: auto;
   aspect-ratio: 8.5 / 11;
   background: #fff;
@@ -2418,7 +2426,9 @@ footer::before {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
 @media (max-width: 560px) {
-  .nl-btn:not(.nl-close) { padding: 0.5rem 0.75rem; font-size: 0.72rem; }
+  .nl-btn:not(.nl-close):not(.nl-zoom-btn) { padding: 0.5rem 0.75rem; font-size: 0.72rem; }
+  .nl-bar { gap: 0.45rem; }
+  .nl-zoom-level { display: none; }
 }
 
 /* ── Join cards → a different sticky note on each ─────────── */

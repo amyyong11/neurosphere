@@ -95,6 +95,39 @@ qsa('.cards-grid, .booklets-grid, .podcast-list, .donate-tiers, .team-grid, .new
   const closeEl = qs('#nlClose', reader);
   let lastFocus = null;
 
+  /* Zoom: −/+ buttons, click the % to reset; keys +, −, 0 (incl. numpad & Ctrl/Cmd) */
+  const ZOOM_MIN = 0.5, ZOOM_MAX = 3, ZOOM_STEP = 0.25;
+  let zoom = 1;
+  const zoomEl = document.createElement('div');
+  zoomEl.className = 'nl-zoom';
+  zoomEl.innerHTML =
+    '<button type="button" class="nl-btn nl-zoom-btn" data-zoom="-1" aria-label="Zoom out">−</button>' +
+    '<button type="button" class="nl-btn nl-zoom-level" data-zoom="0" aria-label="Reset zoom" title="Reset zoom (0)">100%</button>' +
+    '<button type="button" class="nl-btn nl-zoom-btn" data-zoom="1" aria-label="Zoom in">+</button>';
+  dlEl.before(zoomEl);
+  const levelEl = qs('.nl-zoom-level', zoomEl);
+  const [outBtn, , inBtn] = zoomEl.children;
+
+  function setZoom(z) {
+    z = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(z / ZOOM_STEP) * ZOOM_STEP));
+    // Keep the same spot on the page in view while resizing
+    const yRatio = pagesEl.scrollHeight ? (pagesEl.scrollTop + pagesEl.clientHeight / 2) / pagesEl.scrollHeight : 0;
+    const xRatio = pagesEl.scrollWidth  ? (pagesEl.scrollLeft + pagesEl.clientWidth / 2) / pagesEl.scrollWidth : 0.5;
+    zoom = z;
+    pagesEl.style.setProperty('--nl-zoom', z);
+    levelEl.textContent = `${Math.round(z * 100)}%`;
+    outBtn.disabled = z <= ZOOM_MIN;
+    inBtn.disabled  = z >= ZOOM_MAX;
+    pagesEl.scrollTop  = yRatio * pagesEl.scrollHeight - pagesEl.clientHeight / 2;
+    pagesEl.scrollLeft = xRatio * pagesEl.scrollWidth  - pagesEl.clientWidth / 2;
+  }
+  zoomEl.addEventListener('click', e => {
+    const btn = e.target.closest('[data-zoom]');
+    if (!btn) return;
+    const d = +btn.dataset.zoom;
+    setZoom(d === 0 ? 1 : zoom + d * ZOOM_STEP);
+  });
+
   function open(tile) {
     const dir = tile.dataset.pages, n = +tile.dataset.count;
     titleEl.textContent = tile.dataset.title;
@@ -113,6 +146,7 @@ qsa('.cards-grid, .booklets-grid, .podcast-list, .donate-tiers, .team-grid, .new
     lastFocus = document.activeElement;
     reader.hidden = false;
     document.body.style.overflow = 'hidden';
+    setZoom(1);
     pagesEl.scrollTop = 0;
     closeEl.focus();
     const io = new IntersectionObserver(entries => {
@@ -137,7 +171,14 @@ qsa('.cards-grid, .booklets-grid, .podcast-list, .donate-tiers, .team-grid, .new
   });
   closeEl.addEventListener('click', close);
   reader.addEventListener('click', e => { if (e.target === reader || e.target === pagesEl) close(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !reader.hidden) close(); });
+  document.addEventListener('keydown', e => {
+    if (reader.hidden) return;
+    if (e.key === 'Escape') return close();
+    if (e.altKey) return;
+    if (e.key === '+' || e.key === '=')      { e.preventDefault(); setZoom(zoom + ZOOM_STEP); }
+    else if (e.key === '-' || e.key === '_') { e.preventDefault(); setZoom(zoom - ZOOM_STEP); }
+    else if (e.key === '0')                  { e.preventDefault(); setZoom(1); }
+  });
 })();
 
 /* ── Sphere parallax ─────────────────────────────────────── */
