@@ -406,6 +406,7 @@ footer        { animation-delay: 0.12s; }
   font-size: 1.25rem;
   color: var(--pink-deep);
   margin-bottom: 0.75rem;
+  text-wrap: balance;
 }
 .card p { color: var(--text-medium); font-size: 0.92rem; line-height: 1.75; }
 
@@ -1753,35 +1754,82 @@ footer {
 
 /* Research folders alternate: polka dot / plain pink */
 
-/* Research journal cards → scrapbook grid note (title in the speech bubble) */
-.research-card.note-card {
+/* Research journal cards → pinned felt card: stitched edge, pushpin, glossy star */
+.cards-grid:has(> .plain-card) { margin: 3rem auto 0; max-width: 860px; gap: 2rem; align-items: stretch; }
+.research-card.plain-card {
   position: relative;
-  aspect-ratio: 502 / 421;
-  min-height: 0;
-  padding: 37% 25% 14% 31%;
-  background: url('images/elements/note-grid.png') center / 100% 100% no-repeat;
-}
-.note-card .tag { display: none; }
-.note-card h3 {
-  position: absolute;
-  top: 14%;
-  left: 5.5%;
-  width: 33%;
-  height: 25%;
-  margin: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  font-size: clamp(0.72rem, 1.4vw, 0.95rem);
-  line-height: 1.25;
-  color: #9e1f5b;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1.9rem 1.75rem 1.75rem;
+  min-height: 0;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(255, 214, 234, 0.9), transparent 45%),
+    linear-gradient(165deg, #ffffff 0%, #fff5fa 55%, #fde4f0 100%);
+  border: 0;
+  border-radius: 20px;
+  filter: none;
+  box-shadow: 0 14px 34px rgba(150, 30, 95, 0.18), 0 2px 0 rgba(255, 255, 255, 0.9) inset;
+  rotate: -1deg;
+  transition: rotate 0.3s, translate 0.3s, box-shadow 0.3s;
 }
-.note-card p { font-size: 0.8rem; line-height: 1.5; }
-.note-card .btn-secondary { margin-top: 0.6rem; font-size: 0.75rem; }
+.research-card.plain-card:nth-child(even) { rotate: 1deg; }
+.research-card.plain-card:hover {
+  rotate: 0deg;
+  translate: 0 -6px;
+  box-shadow: 0 22px 44px rgba(150, 30, 95, 0.24), 0 2px 0 rgba(255, 255, 255, 0.9) inset;
+}
+/* stitched felt edge */
+.plain-card::before {
+  content: '';
+  position: absolute;
+  inset: 9px;
+  border: 2px dashed rgba(232, 121, 176, 0.5);
+  border-radius: 13px;
+  pointer-events: none;
+}
+/* pushpin holding the card up */
+.plain-card::after {
+  content: '';
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  width: 40px;
+  height: 47px;
+  translate: -50% 0;
+  background: url('images/elements/pushpin.png') center / contain no-repeat;
+  filter: drop-shadow(2px 5px 4px rgba(120, 20, 70, 0.3));
+  pointer-events: none;
+}
+.plain-card .plain-star {
+  position: absolute;
+  top: -15px;
+  right: -12px;
+  width: 44px;
+  rotate: 14deg;
+  filter: drop-shadow(0 6px 8px rgba(150, 30, 95, 0.25));
+  pointer-events: none;
+}
+.plain-card .tag { font-size: 0.75rem; padding: 0.3rem 1.05rem; margin-bottom: 0.75rem; }
+.plain-card h3 {
+  font-family: 'Pacifico', cursive;
+  font-weight: 400;
+  font-size: clamp(1.25rem, 1.7vw, 1.45rem);
+  line-height: 1.3;
+  color: var(--pink-deep);
+  margin-bottom: 0.75rem;
+  text-wrap: balance;
+}
+.plain-card p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-dark);
+}
+.plain-card .btn-secondary { margin-top: 1.15rem; font-size: 0.88rem; padding: 0.6rem 1.6rem; }
 @media (max-width: 600px) {
-  .research-card.note-card { padding: 36% 22% 12% 30%; }
-  .note-card p { font-size: 0.7rem; line-height: 1.4; }
+  .research-card.plain-card { padding: 1.8rem 1.4rem 1.6rem; rotate: 0deg; }
+  .research-card.plain-card:nth-child(even) { rotate: 0deg; }
+  .plain-card .plain-star { width: 38px; right: -6px; }
 }
 
 /* ── Contact card → linen note on plaid, taped with star washi ─ */
@@ -2507,7 +2555,7 @@ footer::before {
 .cards-grid:has(> .benefit-card) { align-items: start; }
 .benefit-card,
 .floral-intro, .matcha-intro, .wavy-intro, .torn-intro,
-.card, .chapter-card, .research-card.note-card {
+.card, .chapter-card {
   overflow: hidden;
 }
 .benefit-card { justify-content: center; }

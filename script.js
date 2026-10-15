@@ -335,7 +335,7 @@ initSphereEntrance();
 /* Fit text inside paper elements: shrink it until it sits within the writing area
    (the box minus its padding, which is where clips, tape and stamps live) */
 (function () {
-  const SEL = '.benefit-card, .matcha-intro, .card, .chapter-card, .research-card, .announce p, .camera-intro p, .podcast-phone p';
+  const SEL = '.benefit-card, .matcha-intro, .card, .chapter-card, .research-card:not(.plain-card), .announce p, .camera-intro p, .podcast-phone p';
   const TXT = 'h3, h4, p, a, span';
   function fits(box) {
     const cs = getComputedStyle(box);
@@ -344,7 +344,8 @@ initSphereEntrance();
     const bottom = r.bottom - parseFloat(cs.paddingBottom) - parseFloat(cs.borderBottomWidth) + 1;
     const left = r.left + parseFloat(cs.paddingLeft) - 1;
     const right = r.right - parseFloat(cs.paddingRight) + 1;
-    const kids = box.matches('p') ? [box] : [...box.children].filter(k => getComputedStyle(k).position !== 'absolute');
+    // skip absolute children and hidden ones (display:none reports a 0,0 rect, which never "fits")
+    const kids = box.matches('p') ? [box] : [...box.children].filter(k => k.getClientRects().length && getComputedStyle(k).position !== 'absolute');
     if (box.matches('p')) return box.scrollHeight <= box.clientHeight + 1;
     return kids.every(k => {
       const q = k.getBoundingClientRect();
