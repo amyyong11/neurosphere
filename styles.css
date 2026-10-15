@@ -1955,119 +1955,200 @@ footer::before {
 }
 .chapter-map-header h3, .chapter-map-header p { color: #b02a6c; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8); }
 
-/* ── Meet the Team: one consistent directory panel per department ── */
+/* ── Meet the Team: taped scrapbook panel per department, sized to its members ── */
 .page-content > .container:has(> .dept-section) {
-  columns: 2;
-  column-gap: 2rem;
+  --card-w: 138px;
+  --card-h: 268px;  /* tallest card (2-line name + 3-line role) so every card matches */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2.4rem 1.25rem;
+  padding-top: 0.5rem;
 }
 .page-content > .container:has(> .dept-section) > .dept-section {
-  break-inside: avoid;
-  margin-bottom: 2.75rem;
+  flex: 0 1 auto;
+  min-width: 230px;
+  margin-bottom: 0;
 }
 .dept-section {
+  --tint: #fff0f7;
+  --edge: rgba(232, 121, 176, 0.45);
+  --tape-hue: 0deg;
   position: relative;
   margin: 0;
-  padding: 2rem 1.75rem 1.25rem;
+  padding: 1.6rem 1.2rem 1.1rem;
   text-align: left;
-  background: #fffafc;
-  border-radius: 14px;
-  box-shadow: 0 10px 28px rgba(150, 30, 95, 0.18);
+  background:
+    radial-gradient(rgba(232, 121, 176, 0.13) 1.2px, transparent 1.6px) 0 0 / 16px 16px,
+    linear-gradient(170deg, #ffffff 0%, var(--tint) 100%);
+  border-radius: 20px;
+  box-shadow: 0 12px 28px rgba(150, 30, 95, 0.16), 0 2px 0 #fff inset;
+  rotate: -0.5deg;
 }
+.dept-section:nth-child(even) { rotate: 0.5deg; }
+.dept-section:nth-child(3n+2) { --tint: #fbeefe; --edge: rgba(190, 120, 220, 0.45); --tape-hue: -45deg; }
+.dept-section:nth-child(3n)   { --tint: #ffefef; --edge: rgba(240, 130, 140, 0.45); --tape-hue: -20deg; }
+/* stitched edge */
+.dept-section::after {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border: 2px dashed var(--edge);
+  border-radius: 14px;
+  pointer-events: none;
+}
+/* washi tape, colour varies per panel */
 .dept-section::before {
   content: '';
   position: absolute;
-  top: -14px;
+  top: -13px;
   left: 50%;
-  width: 120px;
-  height: 32px;
-  transform: translateX(-50%) rotate(-2deg);
+  width: 116px;
+  height: 28px;
+  transform: translateX(-50%) rotate(-3deg);
   background: url('images/elements/washi-stars.png') center / 100% 100% no-repeat;
+  filter: hue-rotate(var(--tape-hue)) drop-shadow(0 2px 3px rgba(120, 20, 70, 0.18));
+  z-index: 1;
 }
-.dept-section:first-child { column-span: all; }
+.dept-section:first-child { flex-basis: 100%; }
 
 .dept-section .dept-label,
 .dept-section .dept-label-sub {
   display: block;
   background: none;
   border: 0;
-  padding: 0 0 0.6rem;
-  margin: 0 0 0.25rem;
-  border-bottom: 2px solid rgba(204, 77, 150, 0.25);
+  padding: 0;
+  margin: 0 0 0.75rem;
   border-radius: 0;
   font-family: 'Pacifico', cursive;
   font-size: 1.3rem;
   font-weight: 400;
+  line-height: 1.4;
   letter-spacing: 0;
   text-transform: none;
+  text-align: center;
   color: var(--pink-deep);
+  text-shadow: 0 2px 0 #fff;
   box-shadow: none;
   filter: none;
 }
-.dept-section .dept-label-sub {
-  margin-top: 1.5rem;
-  font-size: 1.05rem;
-}
+.dept-section .dept-label-sub { margin: 0.9rem 0 0.55rem; font-size: 1.02rem; }
 
+/* members: polaroid-style photo cards */
 .dept-section .team-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0;
-}
-.dept-section:first-child .team-grid:not(.founder-grid) {
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  column-gap: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.7rem;
 }
 .dept-section .team-card,
 .dept-section .founder-card {
+  position: relative;
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 1rem;
+  flex-direction: column;
   flex: none;
-  width: auto;
+  width: var(--card-w);
+  height: var(--card-h);
   max-width: none;
   margin: 0;
-  padding: 0.7rem 0;
+  padding: 6px 6px 0.6rem;
   text-align: left;
-  background: none;
-  border: 0;
-  border-bottom: 1px dashed rgba(204, 77, 150, 0.3);
-  border-radius: 0;
-  box-shadow: none;
+  background: #ffffff;
+  border: 1.5px solid rgba(232, 121, 176, 0.22);
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(150, 30, 95, 0.1);
   transform: none;
   overflow: visible;
+  transition: translate 0.25s, box-shadow 0.25s, border-color 0.25s;
 }
 .dept-section .team-card::before,
-.dept-section .team-card::after { content: none; }
-.dept-section .team-card:hover { transform: none; box-shadow: none; }
+.dept-section .team-card::after,
+.dept-section .founder-card::before { content: none; }
+.dept-section .team-card:hover {
+  transform: none;
+  translate: 0 -3px;
+  border-color: rgba(232, 121, 176, 0.5);
+  box-shadow: 0 10px 22px rgba(150, 30, 95, 0.18);
+}
+.team-photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: 50% 25%;
+  border-radius: 10px;
+  margin-bottom: 0.5rem;
+  background: #fde3f0;
+}
 .dept-section .team-card h4 {
-  margin: 0;
-  font-size: 0.98rem;
-  white-space: nowrap;
+  margin: 0 0.2rem 0.1rem;
+  font-size: 0.92rem;
+  line-height: 1.25;
+  color: var(--text-dark);
 }
 .dept-section .team-card p {
-  margin: 0;
-  text-align: right;
-  font-size: 0.82rem;
+  margin: 0 0.2rem;
+  font-size: 0.74rem;
+  line-height: 1.3;
+  text-align: left;
 }
-/* Founder highlight row */
-.dept-section .founder-grid { margin: 0.5rem 0 0; }
+/* executive: founder + associate directors in one row of four */
+.dept-section:first-child {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-areas: 'label label' 'founder sub' 'founder assoc';
+  justify-content: center;
+  column-gap: 0.7rem;
+}
+.dept-section:first-child > .dept-label { grid-area: label; }
+.dept-section:first-child > .founder-grid { grid-area: founder; align-self: end; }
+.dept-section:first-child > .dept-label-sub { grid-area: sub; margin: 0 0 0.4rem; }
+.dept-section:first-child > .team-grid:not(.founder-grid) { grid-area: assoc; flex-wrap: nowrap; }
+.dept-section .founder-grid { display: flex; margin: 0; }
 .dept-section .founder-card {
-  padding: 1rem 1.25rem;
-  border: 0;
-  border-radius: 10px;
-  background: linear-gradient(90deg, #fde6f1, #fff4f9);
+  background: linear-gradient(180deg, #ffffff 55%, #fde3f0);
+  border: 1.5px solid rgba(204, 77, 150, 0.5);
+  box-shadow: 0 8px 20px rgba(150, 30, 95, 0.18);
 }
-.dept-section .founder-card h4 { font-size: 1.15rem; }
+.dept-section .founder-card::after {
+  content: 'Founder';
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  bottom: auto;
+  left: auto;
+  transform: none;
+  filter: none;
+  padding: 0.08rem 0.55rem;
+  line-height: 1.4;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--pink-deep), #9e1f5b);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(150, 30, 95, 0.3);
+}
+.dept-section .founder-card h4 { font-size: 1rem; }
+.dept-section .founder-card p { font-size: 0.78rem; }
 
 @media (max-width: 800px) {
-  .page-content > .container:has(> .dept-section) { columns: 1; }
+  .dept-section:first-child { grid-template-columns: auto; grid-template-areas: 'label' 'founder' 'sub' 'assoc'; }
+  .dept-section:first-child > .founder-grid { justify-content: center; }
+  .dept-section:first-child > .dept-label-sub { margin: 0.8rem 0 0.4rem; }
+  .dept-section:first-child > .team-grid:not(.founder-grid) { flex-wrap: wrap; }
+  .dept-section, .dept-section:nth-child(even) { rotate: 0deg; }
 }
-@media (max-width: 480px) {
-  .dept-section .team-card,
-  .dept-section .founder-card { flex-direction: column; gap: 0.15rem; }
-  .dept-section .team-card p { text-align: left; }
-  .dept-section .team-card h4 { white-space: normal; }
+@media (max-width: 560px) {
+  .page-content > .container:has(> .dept-section) > .dept-section { flex-basis: 100%; }
+  .dept-section .team-grid { gap: 0.6rem; }
+  .page-content > .container:has(> .dept-section),
+  .dept-section:first-child { --card-w: calc(50% - 0.3rem); --card-h: 285px; }
+  .dept-section:first-child > .founder-grid,
+  .dept-section:first-child > .team-grid:not(.founder-grid) { width: 100%; }
 }
 .footer-bottom { color: #ffffff; text-shadow: 0 1px 4px rgba(130, 20, 80, 0.55); }
 
