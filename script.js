@@ -95,7 +95,7 @@ qsa('.cards-grid, .booklets-grid, .podcast-list, .donate-tiers, .team-grid, .new
   const closeEl = qs('#nlClose', reader);
   let lastFocus = null;
 
-  /* Zoom: −/+ buttons, click the % to reset; keys +, −, 0 (incl. numpad & Ctrl/Cmd) */
+  /* Zoom: −/+ buttons, click the % to reset; keys +, −, 0 (incl. numpad & Ctrl/Cmd); trackpad pinch */
   const ZOOM_MIN = 0.5, ZOOM_MAX = 3, ZOOM_STEP = 0.25;
   let zoom = 1;
   const zoomEl = document.createElement('div');
@@ -108,18 +108,21 @@ qsa('.cards-grid, .booklets-grid, .podcast-list, .donate-tiers, .team-grid, .new
   const levelEl = qs('.nl-zoom-level', zoomEl);
   const [outBtn, , inBtn] = zoomEl.children;
 
-  function setZoom(z) {
-    z = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(z / ZOOM_STEP) * ZOOM_STEP));
+  // snap: round to ZOOM_STEP (buttons/keys); pinch zooms smoothly.
+  // ax/ay: point inside pagesEl to keep fixed (defaults to the centre).
+  function setZoom(z, { snap = true, ax = pagesEl.clientWidth / 2, ay = pagesEl.clientHeight / 2 } = {}) {
+    if (snap) z = Math.round(z / ZOOM_STEP) * ZOOM_STEP;
+    z = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z));
     // Keep the same spot on the page in view while resizing
-    const yRatio = pagesEl.scrollHeight ? (pagesEl.scrollTop + pagesEl.clientHeight / 2) / pagesEl.scrollHeight : 0;
-    const xRatio = pagesEl.scrollWidth  ? (pagesEl.scrollLeft + pagesEl.clientWidth / 2) / pagesEl.scrollWidth : 0.5;
+    const yRatio = pagesEl.scrollHeight ? (pagesEl.scrollTop + ay) / pagesEl.scrollHeight : 0;
+    const xRatio = pagesEl.scrollWidth  ? (pagesEl.scrollLeft + ax) / pagesEl.scrollWidth : 0.5;
     zoom = z;
     pagesEl.style.setProperty('--nl-zoom', z);
     levelEl.textContent = `${Math.round(z * 100)}%`;
     outBtn.disabled = z <= ZOOM_MIN;
     inBtn.disabled  = z >= ZOOM_MAX;
-    pagesEl.scrollTop  = yRatio * pagesEl.scrollHeight - pagesEl.clientHeight / 2;
-    pagesEl.scrollLeft = xRatio * pagesEl.scrollWidth  - pagesEl.clientWidth / 2;
+    pagesEl.scrollTop  = yRatio * pagesEl.scrollHeight - ay;
+    pagesEl.scrollLeft = xRatio * pagesEl.scrollWidth  - ax;
   }
   zoomEl.addEventListener('click', e => {
     const btn = e.target.closest('[data-zoom]');
@@ -127,6 +130,26 @@ qsa('.cards-grid, .booklets-grid, .podcast-list, .donate-tiers, .team-grid, .new
     const d = +btn.dataset.zoom;
     setZoom(d === 0 ? 1 : zoom + d * ZOOM_STEP);
   });
+
+
+  /* Trackpad pinch: Chrome/Firefox/Edge send ctrl+wheel, Safari sends gesture events */
+  function pinchAt(factor, clientX, clientY) {
+    const r = pagesEl.getBoundingClientRect();
+    setZoom(zoom * factor, { snap: false, ax: clientX - r.left, ay: clientY - r.top });
+  }
+  reader.addEventListener('wheel', e => {
+    if (!e.ctrlKey) return;
+    e.preventDefault();
+    pinchAt(Math.exp(-e.deltaY * 0.01), e.clientX, e.clientY);
+  }, { passive: false });
+  let gestureScale = 1;
+  reader.addEventListener('gesturestart', e => { e.preventDefault(); gestureScale = 1; });
+  reader.addEventListener('gesturechange', e => {
+    e.preventDefault();
+    pinchAt(e.scale / gestureScale, e.clientX, e.clientY);
+    gestureScale = e.scale;
+  });
+  reader.addEventListener('gestureend', e => e.preventDefault());
 
   function open(tile) {
     const dir = tile.dataset.pages, n = +tile.dataset.count;
